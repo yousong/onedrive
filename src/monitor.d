@@ -362,6 +362,12 @@ final class Monitor
 				} else if (event.mask & IN_CREATE) {
 					log.vdebug("event IN_CREATE: ", path);
 					if (event.mask & IN_ISDIR) {
+						auto cookieToPath1 = cookieToPath.dup();
+						foreach (cookie, path1; cookieToPath1) {
+							if (path1 == path) {
+								cookieToPath.remove(cookie);
+							}
+						}
 						addRecursive(path);
 						if (useCallbacks) onDirCreated(path);
 					}
@@ -370,6 +376,12 @@ final class Monitor
 					if (useCallbacks) onDelete(path);
 				} else if ((event.mask & IN_CLOSE_WRITE) && !(event.mask & IN_ISDIR)) {
 					log.vdebug("event IN_CLOSE_WRITE and ...: ", path);
+					auto cookieToPath1 = cookieToPath.dup();
+					foreach (cookie, path1; cookieToPath1) {
+						if (path1 == path) {
+							cookieToPath.remove(cookie);
+						}
+					}
 					if (useCallbacks) onFileChanged(path);
 				} else {
 					log.vdebug("event unhandled: ", path);
